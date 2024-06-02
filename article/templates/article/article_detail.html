@@ -1,0 +1,23 @@
+{% extends 'newsletter/base.html' %}
+{% load my_tags user_tags %}
+{% block content %}
+<div class="row text-center">
+        <div class="col-12">
+            <div class="card mt-4 mb-4 box-shadow">
+                <div class="card-header">
+                    <h3 class="my-0 font-weight-normal">{{ article.title }}</h3>
+                </div>
+                <div class="card-body">
+                    <img src= "{{ article.preview|mymedia }}" height="200" class="img">
+                    <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>{{ article.content }}</li>
+                    </ul>
+                    {% if user|is_content_manager or user.is_superuser or user == object.owner %}
+                    <a href="{% url 'article:update_article' object.pk %}" type="button" class="btn btn-lg btn-block btn-outline-primary">Редактировать</a>
+                    <a href="{% url 'article:delete_article' object.pk %}" type="button" class="btn btn-lg btn-block btn-outline-danger">Удалить</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
