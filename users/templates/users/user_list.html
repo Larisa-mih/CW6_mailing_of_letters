@@ -1,0 +1,29 @@
+{% extends 'newsletter/base.html' %}
+{% block content %}
+<body>
+<h1>Список пользователей</h1>
+
+<table class="table" cellpadding="10" border="1" width="100%">
+    <col width="40%">
+    <col width="60%">
+    <thead>
+    <tr>
+        <th scope="col">Имя</th>
+        <th scope="col">Электронный адрес</th>
+    </tr>
+    </thead>
+</table>
+{% for object in object_list %}
+<table class="table" cellpadding="10" border="1" width="100%">
+    <col width="40%">
+    <col width="60%">
+    <tbody>
+    <tr>
+        <td>{{object.name}}</td>
+        <td><a href="{% url 'users:profile' %}">{{object.email}}</a></td>
+    </tr>
+    </tbody>
+</table>
+{% endfor %}
+</body>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'newsletter/base.html' %}
+{% load my_tags %}
+{% block content %}
+<div class="col-12">
+    <form class="row" method="post" enctype="multipart/form-data">
+<div class="col-6">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Профиль пользователя</h4>
+                </div>
+                <div class="card-body">
+                        {{form.as_p}}
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-lg btn-block btn-outline-primary">
+                            Сохранить
+                        </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <img src= "{{ user.avatar|mymedia }}" height="400" class="img">
+        </div>
+        </form>
+    </div>
+{% endblock %}
