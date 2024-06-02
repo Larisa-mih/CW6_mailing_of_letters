@@ -1,0 +1,26 @@
+{% extends 'newsletter/base.html' %}
+{% block content %}
+<main class="px-3">
+    <h1>Добро пожаловать в сервис рассылок!</h1>
+    <p class="lead">Здесь вы можете создать и настроить отправку рассылок для информирования и привлечения
+        клиентов.</p>
+    <br>
+    <div class="row">
+        <div class="col-6 text-sm-start">
+            <li>Количество рассылок на сайте - {{count}} </li>
+            <li>Количество активных рассылок - {{is_active}} </li>
+            <li>Количество клиентов - {{unique}} </li>
+        </div>
+    </div>
+    <br>
+    <div class="row mt-4">
+        <div class="col-12 text-sm-start">
+            <h5>Зайдите в наш блог, это только часть статей</h5>
+            {% for article in random_article_list %}
+            <li>{{article.title}}</li>
+    {% endfor %}
+        </div>
+    </div>
+
+</main>
+{% endblock %}

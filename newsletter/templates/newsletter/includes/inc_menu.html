@@ -1,0 +1,41 @@
+<header class="mb-auto">
+    <div>
+        <nav class="nav nav-masthead">
+            <a class="nav-link fw-bold py-1 px-4" href='/'>Главная</a>
+            {% if user.is_authenticated %}
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Меню
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'newsletter:client_list' %}">Клиенты</a></li>
+                    <li><a class="dropdown-item" href="{% url 'newsletter:message_list' %}">Сообщения</a></li>
+                    <li><a class="dropdown-item" href="{% url 'newsletter:mail_list' %}">Рассылки</a></li>
+                </ul>
+            </div>
+            {% endif %}
+            <a class="nav-link fw-bold py-1 px-4" href="{% url 'article:articles' %}">Блог</a>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Авторизация
+                </button>
+                <ul class="dropdown-menu">
+                    {% if user.is_authenticated %}
+                    <li><form action="{% url 'users:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-light">Выйти</button>
+                    </form></li>
+                    {% else %}
+                    <li><a class="dropdown-item" href="{% url 'users:login' %}">Вход</a></li>
+                    <li><a class="dropdown-item" href="{% url 'users:register' %}">Регистрация</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% if perms.users.view_all_users %}
+            <a class="nav-link fw-bold py-1 px-4" href="{% url 'users:users' %}">Список пользователей</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>

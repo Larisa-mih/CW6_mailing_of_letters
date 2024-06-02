@@ -1,0 +1,35 @@
+{% extends 'newsletter/base.html' %}
+{% block content %}
+<body>
+<h1>Список рассылок</h1>
+<div class="col-4 mb-4">
+<a href="{% url 'newsletter:mail_create' %}" type="button" class="btn btn-outline-light">Создать рассылку</a>
+    </div>
+<table class="table" cellpadding="10" border="1" width="100%">
+    <col width="60%">
+    <col width="20%">
+    <col width="20%">
+    <thead>
+    <tr>
+        <th scope="col">Название</th>
+        <th scope="col">Периодичность</th>
+        <th scope="col">Статус</th>
+    </tr>
+    </thead>
+</table>
+{% for object in object_list %}
+<table class="table" cellpadding="10" border="1" width="100%">
+    <col width="60%">
+    <col width="20%">
+    <col width="20%">
+    <tbody>
+    <tr>
+        <td><a href="{% url 'newsletter:mail_detail' object.pk %}">{{object.title}}</a></td>
+        <td>{{object.mail_periodicity}}</td>
+        <td>{{object.mail_status}}</td>
+    </tr>
+    </tbody>
+</table>
+{% endfor %}
+</body>
+{% endblock %}

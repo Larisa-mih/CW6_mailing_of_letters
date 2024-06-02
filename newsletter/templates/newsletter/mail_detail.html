@@ -1,0 +1,23 @@
+{% extends 'newsletter/base.html' %}
+{% block content %}
+<div class="row text-center">
+        <div class="col-12">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h3 class="my-0 font-weight-normal">{{ mail.title }}</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>Сообщение: {{mail.message}}</li>
+                        <li>Периодичность: {{mail.mail_periodicity}}</li>
+                        <li>Дата начала отправки рассылки: {{mail.mail_datetime}}</li>
+                        <li>Дата отправки последней рассылки: {{mail.mail_datetime_last}}</li>
+                    </ul>
+                    <a href="{% url 'newsletter:mail_update' object.pk %}" type="button" class="btn btn-lg btn-block btn-outline-dark">Редактировать</a>
+                    <a href="{% url 'newsletter:mail_delete' object.pk %}" type="button" class="btn btn-lg btn-block btn-outline-danger">Удалить</a>
+                    <a href="{% url 'newsletter:mail_list' %}" type="button" class="btn btn-lg btn-block btn-outline-success">Отмена</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
