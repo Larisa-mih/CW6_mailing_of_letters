@@ -1,4 +1,5 @@
 import secrets
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.views import PasswordResetView
 from django.core.mail import send_mail
@@ -86,4 +87,23 @@ class ProfileView(UpdateView):
 class UsersListView(PermissionRequiredMixin, ListView):
     """ Просмотр списка рассылок """
     model = User
-    permission_required = "view_all_users"
+    permission_required = "users.view_all_users"
+
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        if user.is_superuser:
+            return super().get_queryset(*args, **kwargs).exclude(pk=self.request.user.pk)
+        return super().get_queryset(*args, **kwargs).exclude(pk=self.request.user.pk).exclude(
+            is_superuser=True)
+
+
+@permission_required('users.block_the_user')
+def toggle_activiti(request, pk):
+    """Контроллер изменения статуса пользователя"""
+    user = User.objects.get(pk=pk)
+    if user.is_active:
+        user.is_active = False
+    else:
+        user.is_active = True
+    user.save()
+    return redirect(reverse('users:user_list'))
