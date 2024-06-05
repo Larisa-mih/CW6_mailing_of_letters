@@ -2,9 +2,12 @@
 {% load my_tags %}
 {% block content %}
  <h1 class="my-0 mb-4 font-weight-normal">Статьи</h1>
+{% if perms.article.add_article %}
+<a href="{% url 'article:create_article' %}" class="col-4 btn btn-outline-success mb-3">Добавить статью</a>
+{% endif %}
 <div class="row text-center">
     {% for object in object_list %}
-    <div class="col-4">
+    <div class="col-5">
         <div class="card mb-4 box-shadow">
             <div class="card-header">
                 <h5 class="my-0 font-weight-normal">{{ object.title }}</h5>
@@ -14,7 +17,7 @@
                 <span class="textarea">{{ object.content|slice:50 }}</span>
                 <ul class="list-unstyled mt-3 mb-4 text-start m-3">
                 </ul>
-                <a href="{% url 'article:article_detail' object.pk %}" type="button" class="btn btn-lg btn-block btn-outline-success">Читать</a>
+                <a href="{% url 'article:article_detail' object.pk %}" type="button" class="btn btn-outline-success form-control">Читать</a>
             </div>
         </div>
     </div>

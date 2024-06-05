@@ -1,4 +1,7 @@
 from django.db import models
+
+from config import settings
+
 NULLABLE = {'null': True, 'blank': True}
 
 
@@ -8,6 +11,8 @@ class Article(models.Model):
     preview = models.ImageField(upload_to='articles/', verbose_name='Изображение', **NULLABLE)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     view_count = models.IntegerField(default=0, verbose_name='Количество просмотров')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                              **NULLABLE, verbose_name='Автор')
 
     def __str__(self):
         return f'{self.title}'

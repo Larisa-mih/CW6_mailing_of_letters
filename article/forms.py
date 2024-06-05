@@ -17,4 +17,4 @@ class StyleFormMixin:
 class ArticleManagerForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model = Article
-        exclude = ('created_at', 'view_count')
+        exclude = ('created_at', 'view_count', 'owner',)

@@ -3,13 +3,21 @@
 <div class="col-12">
             <div class="card mb-4 box-shadow">
                 <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">Загрузите статью</h4>
+                    {% if object %}
+                    <h4 class="my-0 font-weight-normal">Редактировать статью</h4>
+                    {% else %}
+                    <h4 class="my-0 font-weight-normal">Создание статьи</h4>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         {{form.as_p}}
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Создать</button>
+                        {% if object %}
+                        <button type="submit" class="btn btn-outline-primary form-control">Сохранить</button>
+                        {% else %}
+                        <button type="submit" class="btn btn-outline-primary form-control">Добавить</button>
+                        {% endif %}
                     </form>
                 </div>
             </div>
