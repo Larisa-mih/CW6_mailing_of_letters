@@ -2,9 +2,7 @@
 {% block content %}
 <body>
 <h1>Список сообщений для рассылки</h1>
-<div class="col-4 mb-4 mt-2">
-<a href="{% url 'newsletter:message_create' %}" type="button" class="btn btn-outline-light">Создать сообщение</a>
-    </div>
+<a href="{% url 'newsletter:message_create' %}" type="button" class="col-4 my-3 btn btn-outline-success">Создать сообщение</a>
 <table class="table" cellpadding="10" border="1" width="100%">
     <col width="40%">
     <col width="60%">

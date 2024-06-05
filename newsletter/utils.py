@@ -9,7 +9,7 @@ from newsletter.models import Mail, LogAttempt
 def send_mailing():
     zone = pytz.timezone(settings.TIME_ZONE)
     current_datetime = datetime.now(zone)
-    mailings = Mail.objects.filter(mail_datetime__lte=current_datetime,
+    mailings = Mail.objects.filter(mail_datetime_last__lte=current_datetime,
                                    mail_status__in=[Mail.StatusOfMail.CREATED, Mail.StatusOfMail.LAUNCHED],
                                    mail_active=True)
 
@@ -41,7 +41,7 @@ def send_mailing():
             server_response = str(e)
         finally:
             LogAttempt.objects.create(
-                mail_settings=mailing,
+                mail=mailing,
                 attempt_status=status,
                 server_response=server_response,
             )

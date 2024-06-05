@@ -1,42 +1,50 @@
-import random
-
+from audioop import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView, TemplateView
-
-from article.models import Article
 from newsletter.forms import MailForm, ClientForm, MessageForm, MailManagerForm
-from newsletter.models import Mail, Client, Message
+from newsletter.models import Mail, Client, Message, LogAttempt
+from newsletter.services import get_random_articles_cache
 
 
 class HomePageView(TemplateView):
     template_name = 'newsletter/home.html'
 
-    def get_context_data(self, **kwargs):
-        count = Mail.objects.count()
-        is_active = Mail.objects.filter(mail_active=True).count()
-        unique = Client.objects.distinct('email').count()
-        article_list = list(Article.objects.all())
-        random.shuffle(article_list)
-        random_article_list = article_list[:3]
-        context_data = {
-            'count': count,
-            'is_active': is_active,
-            'unique': unique,
-            'random_article_list': random_article_list,
-        }
-        return context_data
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        mailing = Mail.objects.all()
+        clients = Client.objects.all()
+        context['count_mail'] = mailing.count()
+        context['mail_is_active'] = mailing.filter(mail_active=True).count()
+        context['count_client'] = clients.count()
+        context['count_client_unique'] = clients.values('email').distinct().count()
+        context['random_article_list'] = get_random_articles_cache(3)
+        return context
 
 
-class MailListView(ListView):
+class MailListView(LoginRequiredMixin, ListView):
     """ Просмотр списка рассылок """
     model = Mail
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+        if not user.is_superuser and not user.groups.filter(name='moderator').exists():
+            queryset = queryset.filter(owner=user)
+        return queryset
 
 
 class MailDetailView(LoginRequiredMixin, DetailView):
     """ Просмотр деталей рассылки """
     model = Mail
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        user = self.request.user
+        if not user.is_superuser and not user.groups.filter(name='moderator').exists() and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
 
 
 class MailCreateView(LoginRequiredMixin, CreateView):
@@ -44,6 +52,13 @@ class MailCreateView(LoginRequiredMixin, CreateView):
     model = Mail
     form_class = MailForm
     success_url = reverse_lazy('newsletter:mail_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        user = self.request.user
+        form.fields['client'].queryset = Client.objects.filter(owner=user)
+        form.fields['message'].queryset = Message.objects.filter(owner=user)
+        return form
 
     def form_valid(self, form):
         mail = form.save()
@@ -56,16 +71,30 @@ class MailCreateView(LoginRequiredMixin, CreateView):
 class MailUpdateView(LoginRequiredMixin, UpdateView):
     """ Редактирование данных рассылки """
     model = Mail
-    form_class = MailForm
     success_url = reverse_lazy('newsletter:mail_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        user = self.request.user
+        if user == self.object.owner or user.is_superuser:
+            form.fields['client'].queryset = Client.objects.filter(owner=user)
+            form.fields['message'].queryset = Message.objects.filter(owner=user)
+        return form
 
     def get_form_class(self):
         user = self.request.user
-        if user == self.object.owner:
+        if user == self.object.owner or user.is_superuser:
             return MailForm
-        if user.has_perm('mail.set_activation_mail'):
+        elif user.groups.filter(name='moderator').exists():
             return MailManagerForm
-        raise PermissionDenied
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        user = self.request.user
+        if (not user.is_superuser and user != self.object.owner and
+                not user.groups.filter(name='moderator').exists()):
+            raise PermissionDenied
+        return self.object
 
 
 class MailDeleteView(LoginRequiredMixin, DeleteView):
@@ -73,25 +102,36 @@ class MailDeleteView(LoginRequiredMixin, DeleteView):
     model = Mail
     success_url = reverse_lazy('newsletter:mail_list')
 
-    def get_context_data(self, **kwargs):
-        """
-        Права доступа владельца.
-        """
-        context_data = super().get_context_data(**kwargs)
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
         user = self.request.user
-        if user == self.object.owner:
-            return context_data
-        raise PermissionDenied
+        if not user.is_superuser and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
 
 
 class ClientListView(LoginRequiredMixin, ListView):
     """ Просмотр списка клиентов """
     model = Client
 
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+        if not user.is_superuser:
+            queryset = queryset.filter(owner=user)
+        return queryset
+
 
 class ClientDetailView(LoginRequiredMixin, DetailView):
     """Просмотр одного клиента"""
     model = Client
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        user = self.request.user
+        if not user.is_superuser and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -112,13 +152,16 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование данных клиента"""
     model = Client
     form_class = ClientForm
-    success_url = reverse_lazy('newsletter:client_list')
 
-    def get_form_class(self):
+    def get_success_url(self):
+        return reverse('newsletter:client_detail', args=[self.kwargs.get('pk')])
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
         user = self.request.user
-        if user == self.object.owner:
-            return ClientForm
-        raise PermissionDenied
+        if not user.is_superuser and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
 
 
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
@@ -126,25 +169,36 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
     model = Client
     success_url = reverse_lazy('newsletter:client_list')
 
-    def get_context_data(self, **kwargs):
-        """
-        Права доступа владельца.
-        """
-        context_data = super().get_context_data(**kwargs)
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
         user = self.request.user
-        if user == self.object.owner:
-            return context_data
-        raise PermissionDenied
+        if not user.is_superuser and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
 
 
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     """ Просмотр списка сообщений """
     model = Message
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+        if not user.is_superuser:
+            queryset = queryset.filter(owner=user)
+        return queryset
 
 
 class MessageDetailView(LoginRequiredMixin, DetailView):
     """Просмотр деталей сообщения"""
     model = Message
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        user = self.request.user
+        if not user.is_superuser and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -167,11 +221,12 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
     form_class = MessageForm
     success_url = reverse_lazy('newsletter:message_list')
 
-    def get_form_class(self):
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
         user = self.request.user
-        if user == self.object.owner:
-            return MessageForm
-        raise PermissionDenied
+        if not user.is_superuser and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
 
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
@@ -179,12 +234,32 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     success_url = reverse_lazy('newsletter:message_list')
 
-    def get_context_data(self, **kwargs):
-        """
-        Права доступа владельца.
-        """
-        context_data = super().get_context_data(**kwargs)
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
         user = self.request.user
-        if user == self.object.owner:
-            return context_data
-        raise PermissionDenied
+        if not user.is_superuser and user != self.object.owner:
+            raise PermissionDenied
+        return self.object
+
+
+class LogAttemptListView(LoginRequiredMixin, ListView):
+    """Контроллер просмотра логов рассылки"""
+    model = LogAttempt
+
+    def get_queryset(self, *args, **kwargs):
+        mail_pk = self.kwargs.get('mail_pk')
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(mail__pk=mail_pk)
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['mail_pk'] = self.kwargs.get('mail_pk')
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        mail_pk = self.kwargs.get('mail_pk')
+        user = self.request.user
+        if not user.is_superuser and not Mail.objects.filter(pk=mail_pk, owner=user).exists():
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)

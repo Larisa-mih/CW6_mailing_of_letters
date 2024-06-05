@@ -2,9 +2,7 @@
 {% block content %}
 <body>
 <h1>Список клиентов</h1>
-<div class="col-4 mb-4">
-<a href="{% url 'newsletter:client_create' %}" type="button" class="btn btn-outline-light">Создать клиента</a>
-    </div>
+<a href="{% url 'newsletter:client_create' %}" type="button" class="col-3 my-4 btn btn-outline-success">Создать клиента</a>
 <table class="table" cellpadding="10" border="1" width="100%">
     <col width="20%">
     <col width="20%">

@@ -2,9 +2,10 @@
     <div>
         <nav class="nav nav-masthead">
             <a class="nav-link fw-bold py-1 px-4" href='/'>Главная</a>
+            <a class="nav-link fw-bold py-1 px-4" href="{% url 'article:articles' %}">Блог</a>
             {% if user.is_authenticated %}
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                <button class="btn btn-secondary dropdown-toggle py-1 px-4 me-3" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                     Меню
                 </button>
@@ -15,17 +16,24 @@
                 </ul>
             </div>
             {% endif %}
-            <a class="nav-link fw-bold py-1 px-4" href="{% url 'article:articles' %}">Блог</a>
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                <button class="btn btn-secondary dropdown-toggle py-1 px-4" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
+                    {% if user.is_authenticated %}
+                    Профиль
+                    {% else %}
                     Авторизация
+                    {% endif %}
                 </button>
                 <ul class="dropdown-menu">
                     {% if user.is_authenticated %}
+                    <li><a class="dropdown-item" href="{% url 'users:profile' %}">Профиль</a></li>
+                    {% if perms.users.view_all_users %}
+                    <li><a class="dropdown-item" href="{% url 'users:user_list' %}">Пользователи</a></li>
+                    {% endif %}
                     <li><form action="{% url 'users:logout' %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-light">Выйти</button>
+                        <button type="submit" class="btn btn-light">Выйти</button>
                     </form></li>
                     {% else %}
                     <li><a class="dropdown-item" href="{% url 'users:login' %}">Вход</a></li>
@@ -33,9 +41,6 @@
                     {% endif %}
                 </ul>
             </div>
-            {% if perms.users.view_all_users %}
-            <a class="nav-link fw-bold py-1 px-4" href="{% url 'users:users' %}">Список пользователей</a>
-            {% endif %}
         </nav>
     </div>
 </header>

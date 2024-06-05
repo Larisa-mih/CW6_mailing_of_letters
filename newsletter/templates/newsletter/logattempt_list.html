@@ -1,0 +1,28 @@
+{% extends 'newsletter/base.html' %}
+{% block content %}
+<a href="{% url 'newsletter:mail_detail' mail_pk %}" class="col-4 btn btn-outline-info btn-block mb-3">
+  Вернуться к рассылке
+</a>
+<table class="table">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Название рассылки</th>
+      <th scope="col">Дата и время отправки</th>
+      <th scope="col">Статус</th>
+      <th scope="col">Ответ сервера</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for object in object_list %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ object.mail }}</td>
+      <td>{{ object.attempt_datetime}}</td>
+      <td>{{ object.attempt_status}}</td>
+      <td>{{ object.server_response}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
