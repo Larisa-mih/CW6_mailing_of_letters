@@ -1,0 +1,74 @@
+[
+  {
+    "model": "newsletter.client",
+    "pk": 1,
+    "fields": {
+      "first_name": "Иван",
+      "last_name": "Сергеевич",
+      "patronymic": null,
+      "email": "flarisa2004@mail.ru",
+      "comment": "смм",
+      "owner": 1
+    }
+  },
+  {
+    "model": "newsletter.client",
+    "pk": 2,
+    "fields": {
+      "first_name": "Дмитрий",
+      "last_name": "Цой",
+      "patronymic": null,
+      "email": "flarisa2023@mail.ru",
+      "comment": "12334",
+      "owner": 2
+    }
+  },
+  {
+    "model": "newsletter.client",
+    "pk": 3,
+    "fields": {
+      "first_name": "Лариса",
+      "last_name": "Михайлова",
+      "patronymic": null,
+      "email": "Larisa.mih@gmail.com",
+      "comment": "ывуаып",
+      "owner": 2
+    }
+  },
+  {
+    "model": "newsletter.client",
+    "pk": 4,
+    "fields": {
+      "first_name": "Лена",
+      "last_name": "Иванова",
+      "patronymic": null,
+      "email": "Larisa.mih@gmail.com",
+      "comment": "рассылка",
+      "owner": 2
+    }
+  },
+  {
+    "model": "newsletter.client",
+    "pk": 5,
+    "fields": {
+      "first_name": "Петр",
+      "last_name": "Петров",
+      "patronymic": null,
+      "email": "larisa.mih2004@gmail.com",
+      "comment": "рассылка",
+      "owner": 3
+    }
+  },
+  {
+    "model": "newsletter.client",
+    "pk": 6,
+    "fields": {
+      "first_name": "Лана",
+      "last_name": "Кудрявцева",
+      "patronymic": null,
+      "email": "flarisa2004@yandex.ru",
+      "comment": "рассылка",
+      "owner": 3
+    }
+  }
+]

@@ -1,0 +1,56 @@
+[
+{
+  "model": "newsletter.mail",
+  "pk": 1,
+  "fields": {
+    "title": "Куда поехать летом",
+    "message": 1,
+    "mail_datetime": "2024-05-31T18:56:14Z",
+    "mail_datetime_last": "2024-06-03T00:32:37Z",
+    "mail_periodicity": "Раз в день",
+    "mail_status": "Запущена",
+    "mail_active": true,
+    "owner": 1,
+    "client": [
+      1
+    ]
+  }
+},
+{
+  "model": "newsletter.mail",
+  "pk": 2,
+  "fields": {
+    "title": "приглашение на сайт",
+    "message": 2,
+    "mail_datetime": "2024-05-31T00:00:00Z",
+    "mail_datetime_last": "2024-06-03T00:32:37Z",
+    "mail_periodicity": "Раз в день",
+    "mail_status": "Запущена",
+    "mail_active": true,
+    "owner": 2,
+    "client": [
+      2,
+      3,
+      4
+    ]
+  }
+},
+{
+  "model": "newsletter.mail",
+  "pk": 3,
+  "fields": {
+    "title": "приглашение на сайт",
+    "message": 3,
+    "mail_datetime": "2024-05-31T20:50:15Z",
+    "mail_datetime_last": "2024-06-03T00:32:37Z",
+    "mail_periodicity": "Раз в день",
+    "mail_status": "Запущена",
+    "mail_active": true,
+    "owner": 3,
+    "client": [
+      5,
+      6
+    ]
+  }
+}
+]
